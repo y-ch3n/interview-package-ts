@@ -15,9 +15,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/api/classes?offset=0&limit=20",
+              "raw": "localhost:3000/api/classes?offset=0&limit=20",
               "host": [
-                "{{base_url}}"
+                "localhost:3000"
               ],
               "path": [
                 "api",
@@ -53,9 +53,9 @@
               }
             },
             "url": {
-              "raw": "{{base_url}}/api/class/:classCode",
+              "raw": "localhost:3000/api/class/:classCode",
               "host": [
-                "{{base_url}}"
+                "localhost:3000"
               ],
               "path": [
                 "api",
@@ -91,9 +91,9 @@
           ]
         },
         "url": {
-          "raw": "{{base_url}}/api/upload",
+          "raw": "localhost:3000/api/upload",
           "host": [
-            "{{base_url}}"
+            "localhost:3000"
           ],
           "path": [
             "api",
@@ -110,9 +110,9 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "{{base_url}}/api/class/:classCode/students?offset=0&limit=20",
+          "raw": "localhost:3000/api/class/:classCode/students?offset=0&limit=20",
           "host": [
-            "{{base_url}}"
+            "localhost:3000"
           ],
           "path": [
             "api",
@@ -147,9 +147,9 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "{{base_url}}/api/reports/workload",
+          "raw": "localhost:3000/api/reports/workload",
           "host": [
-            "{{base_url}}"
+            "localhost:3000"
           ],
           "path": [
             "api",
@@ -181,9 +181,9 @@
           ]
         },
         "url": {
-          "raw": "{{base_url}}/api/healthcheck",
+          "raw": "localhost:3000/api/healthcheck",
           "host": [
-            "{{base_url}}"
+            "localhost:3000"
           ],
           "path": [
             "api",
