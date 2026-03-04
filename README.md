@@ -40,3 +40,10 @@ For **User Story 1**, the following CSV files are provided to test the import fu
 | ✅ Create  | `test_create_records.csv`    |
 | ✏️ Update  | `test_update_records.csv`    |
 | 🗑️ Delete | `test_delete_records.csv`    |
+
+## 🔮 Future Improvements
+
+- [ ] Update the test scripts to cover the functions in the controllers
+- [ ] Update the controllers to have proper validations
+- [ ] Implement authentication
+- [ ] Implement authorization with roles and permissions
