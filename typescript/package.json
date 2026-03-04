@@ -10,7 +10,9 @@
     "prestart:dev": "npm run start:services",
     "start:dev": "nodemon",
     "start:services": "docker-compose up -d",
-    "lint": "eslint \"src/**/*.ts\""
+    "lint": "eslint \"src/**/*.ts\"",
+    "migrate": "sequelize-cli db:migrate",
+    "migrate:rollback": "sequelize-cli db:migrate:undo"
   },
   "license": "ISC",
   "dependencies": {
@@ -41,6 +43,7 @@
     "eslint": "^7.4.0",
     "jest": "^26.1.0",
     "nodemon": "^2.0.4",
+    "sequelize-cli": "^6.6.5",
     "ts-jest": "^26.3.0",
     "ts-node": "^9.1.1",
     "typescript": "^4.2.4"
