@@ -12,6 +12,12 @@ services:
       - "33306:3306"
     volumes:
       - ./database:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
 
   external:
     container_name: school-administration-system-external
@@ -23,4 +29,23 @@ services:
       TZ: Asia/Singapore
       NODE_ENV: production
     ports:
-      - "5000:5000"
+      - "5001:5000"
+
+  application:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+      external:
+        condition: service_started
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_USER: root
+      DB_PW: password
+      DB_SCHEMA: school-administration-system
+      PORT: 3000
