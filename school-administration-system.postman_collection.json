@@ -1,118 +1,230 @@
 {
-	"info": {
-		"_postman_id": "ba397eb1-db3d-4e2c-91f4-174b4e0ce7f5",
-		"name": "school-administration-system",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
-	},
-	"item": [
-		{
-			"name": "File Upload",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "formdata",
-					"formdata": [
-						{
-							"key": "data",
-							"contentType": "multipart/form-data",
-							"type": "file",
-							"src": []
-						}
-					],
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "localhost:3000/api/upload",
-					"host": [
-						"localhost"
-					],
-					"port": "3000",
-					"path": [
-						"api",
-						"upload"
-					]
-				},
-				"description": "Upload file to school-administration-system"
-			},
-			"response": []
-		},
-		{
-			"name": "Healtcheck",
-			"protocolProfileBehavior": {
-				"disableBodyPruning": true
-			},
-			"request": {
-				"method": "GET",
-				"header": [],
-				"body": {
-					"mode": "formdata",
-					"formdata": [
-						{
-							"key": "data",
-							"contentType": "multipart/form-data",
-							"type": "file",
-							"src": []
-						}
-					],
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "localhost:3000/api/healthcheck",
-					"host": [
-						"localhost"
-					],
-					"port": "3000",
-					"path": [
-						"api",
-						"healthcheck"
-					]
-				},
-				"description": "Healthcheck for application"
-			},
-			"response": []
-		},
-		{
-			"name": "Get Student List (External)",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "localhost:5000/students?class=2&offset=1&limit=2",
-					"host": [
-						"localhost"
-					],
-					"port": "5000",
-					"path": [
-						"students"
-					],
-					"query": [
-						{
-							"key": "class",
-							"value": "2"
-						},
-						{
-							"key": "offset",
-							"value": "1"
-						},
-						{
-							"key": "limit",
-							"value": "2"
-						}
-					]
-				},
-				"description": "Retrieving student list from external"
-			},
-			"response": []
-		}
-	],
-	"protocolProfileBehavior": {}
+  "info": {
+    "_postman_id": "f64f7d44-0d21-4a0d-8dfb-ae91dafc0711",
+    "name": "school-administration-system",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "10965427"
+  },
+  "item": [
+    {
+      "name": "Class",
+      "item": [
+        {
+          "name": "Get Classes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/classes?offset=0&limit=20",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "classes"
+              ],
+              "query": [
+                {
+                  "key": "offset",
+                  "value": "0"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "Retrieving student list from external"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Class",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"className\": \"P1 Integrity\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/class/:classCode",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "class",
+                ":classCode"
+              ],
+              "variable": [
+                {
+                  "key": "classCode",
+                  "value": "P1-1"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "File Upload",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "data",
+              "contentType": "multipart/form-data",
+              "type": "file",
+              "src": "/Users/yc/Documents/interview-package-ts-updated/data.sample.csv"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{base_url}}/api/upload",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "upload"
+          ]
+        },
+        "description": "Upload file to school-administration-system"
+      },
+      "response": []
+    },
+    {
+      "name": "Get Students by Class",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/class/:classCode/students?offset=0&limit=20",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "class",
+            ":classCode",
+            "students"
+          ],
+          "query": [
+            {
+              "key": "offset",
+              "value": "0"
+            },
+            {
+              "key": "limit",
+              "value": "20"
+            }
+          ],
+          "variable": [
+            {
+              "key": "classCode",
+              "value": "P1-1"
+            }
+          ]
+        },
+        "description": "Retrieving student list from external"
+      },
+      "response": []
+    },
+    {
+      "name": "Get Workload Report",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/reports/workload",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "reports",
+            "workload"
+          ]
+        },
+        "description": "Retrieving student list from external"
+      },
+      "response": []
+    },
+    {
+      "name": "Healtcheck",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "data",
+              "contentType": "multipart/form-data",
+              "type": "file",
+              "value": null
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{base_url}}/api/healthcheck",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "healthcheck"
+          ]
+        },
+        "description": "Healthcheck for application"
+      },
+      "response": []
+    },
+    {
+      "name": "Get Student List (External)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{external_base_url}}/students?class=P1-1&offset=1&limit=2",
+          "host": [
+            "{{external_base_url}}"
+          ],
+          "path": [
+            "students"
+          ],
+          "query": [
+            {
+              "key": "class",
+              "value": "P1-1"
+            },
+            {
+              "key": "offset",
+              "value": "1"
+            },
+            {
+              "key": "limit",
+              "value": "2"
+            }
+          ]
+        },
+        "description": "Retrieving student list from external"
+      },
+      "response": []
+    }
+  ]
 }
