@@ -1,0 +1,19 @@
+teacherEmail,teacherName,studentEmail,studentName,classCode,classname,subjectCode,subjectName,toDelete
+teacher1@gmail.com,Teacher 1,commonstudent1@gmail.com,Common Student 1,P1-1,P1 Integrity,MATHS,Mathematics,0
+teacher1@gmail.com,Teacher 1,commonstudent2@gmail.com,Common Student 2,P1-1,P1 Integrity,MATHS,Mathematics,0
+teacher1@gmail.com,Teacher 1,commonstudent3@gmail.com,Common Student 3,P1-1,P1 Integrity,MATHS,Mathematics,0
+teacher2@gmail.com,Teacher 2,commonstudent1@gmail.com,Common Student 1,P2-1,P2 Integrity,SCIENCE,Science,0
+teacher2@gmail.com,Teacher 2,commonstudent2@gmail.com,Common Student 2,P2-1,P2 Integrity,SCIENCE,Science,0
+teacher2@gmail.com,Teacher 2,commonstudent3@gmail.com,Common Student 3,P2-1,P2 Integrity,SCIENCE,Science,0
+teacher2@gmail.com,Teacher 2,commonstudent1@gmail.com,Common Student 1,P2-2,P2 Integrity,MATHS,Mathematics,0
+teacher2@gmail.com,Teacher 2,commonstudent2@gmail.com,Common Student 2,P2-2,P2 Integrity,MATHS,Mathematics,0
+teacher2@gmail.com,Teacher 2,commonstudent3@gmail.com,Common Student 3,P2-2,P2 Integrity,MATHS,Mathematics,0
+teacher1@gmail.com,Teacher 1,commonstudent4@gmail.com,Common Student 4,P3-1,P3 Integrity,MATHS,Mathematics,0
+teacher1@gmail.com,Teacher 1,commonstudent5@gmail.com,Common Student 5,P3-1,P3 Integrity,MATHS,Mathematics,0
+teacher1@gmail.com,Teacher 1,commonstudent6@gmail.com,Common Student 6,P3-1,P3 Integrity,MATHS,Mathematics,0
+teacher2@gmail.com,Teacher 2,commonstudent4@gmail.com,Common Student 4,P4-1,P4 Integrity,SCIENCE,Science,0
+teacher2@gmail.com,Teacher 2,commonstudent5@gmail.com,Common Student 5,P4-1,P4 Integrity,SCIENCE,Science,0
+teacher2@gmail.com,Teacher 2,commonstudent6@gmail.com,Common Student 6,P4-1,P4 Integrity,SCIENCE,Science,0
+teacher2@gmail.com,Teacher 2,commonstudent4@gmail.com,Common Student 4,P3-2,P3 Integrity,MATHS,Mathematics,0
+teacher2@gmail.com,Teacher 2,commonstudent5@gmail.com,Common Student 5,P3-2,P3 Integrity,MATHS,Mathematics,0
+teacher2@gmail.com,Teacher 2,commonstudent6@gmail.com,Common Student 6,P3-2,P3 Integrity,MATHS,Mathematics,0

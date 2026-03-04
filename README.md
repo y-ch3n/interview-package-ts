@@ -30,3 +30,13 @@ Import the Postman collection to explore and test the available endpoints:
 1. Open Postman
 2. Click **Import**
 3. Select `school-administration-system.postman_collection.json` from the project root
+
+## 📂 Test CSV Files
+
+For **User Story 1**, the following CSV files are provided to test the import function:
+
+| Action     | File                         |
+| ---------- | ---------------------------- |
+| ✅ Create  | `test_create_records.csv`    |
+| ✏️ Update  | `test_update_records.csv`    |
+| 🗑️ Delete | `test_delete_records.csv`    |
