@@ -49,3 +49,4 @@ services:
       DB_PW: password
       DB_SCHEMA: school-administration-system
       PORT: 3000
+      EXTERNAL_BASE_URL: http://external:5000
