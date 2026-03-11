@@ -50,3 +50,14 @@ services:
       DB_SCHEMA: school-administration-system
       PORT: 3000
       EXTERNAL_BASE_URL: http://external:5000
+
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: http://localhost:3000/api
+    ports:
+      - "8000:8000"
+    depends_on:
+      - application
