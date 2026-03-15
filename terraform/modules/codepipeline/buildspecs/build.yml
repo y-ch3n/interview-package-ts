@@ -1,0 +1,57 @@
+version: 0.2
+
+env:
+  variables:
+    IMAGE_TAG_BACKEND: "backend"
+    IMAGE_TAG_FRONTEND: "frontend"
+    IMAGE_TAG_EXTERNAL: "external"
+
+phases:
+  pre_build:
+    commands:
+      - echo "Logging in to Amazon ECR..."
+      - aws ecr get-login-password --region "${AWS_DEFAULT_REGION}" | docker login --username AWS --password-stdin "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
+      - COMMIT_HASH=$(echo "${CODEBUILD_RESOLVED_SOURCE_VERSION}" | cut -c 1-7)
+      - IMAGE_TAG="${COMMIT_HASH:-latest}"
+      - echo "Image tag: ${IMAGE_TAG}"
+
+      # Full ECR image URIs
+      - BACKEND_IMAGE="${ECR_BACKEND_URI}:${IMAGE_TAG}"
+      - FRONTEND_IMAGE="${ECR_FRONTEND_URI}:${IMAGE_TAG}"
+      - EXTERNAL_IMAGE="${ECR_EXTERNAL_URI}:${IMAGE_TAG}"
+
+  build:
+    commands:
+      # ── Backend ────────────────────────────────────────────────────────────
+      - echo "Building backend image..."
+      - docker build -t "${BACKEND_IMAGE}" -f typescript/Dockerfile typescript/
+      - docker tag "${BACKEND_IMAGE}" "${ECR_BACKEND_URI}:latest"
+
+      # ── Frontend ───────────────────────────────────────────────────────────
+      - echo "Building frontend image..."
+      - docker build -t "${FRONTEND_IMAGE}" -f frontend/Dockerfile frontend/
+      - docker tag "${FRONTEND_IMAGE}" "${ECR_FRONTEND_URI}:latest"
+
+      # ── External system ────────────────────────────────────────────────────
+      - echo "Building external system image..."
+      - docker build -t "${EXTERNAL_IMAGE}" -f external/external-system.Dockerfile external/
+      - docker tag "${EXTERNAL_IMAGE}" "${ECR_EXTERNAL_URI}:latest"
+
+  post_build:
+    commands:
+      - echo "Pushing images to ECR..."
+      - docker push "${BACKEND_IMAGE}"
+      - docker push "${ECR_BACKEND_URI}:latest"
+      - docker push "${FRONTEND_IMAGE}"
+      - docker push "${ECR_FRONTEND_URI}:latest"
+      - docker push "${EXTERNAL_IMAGE}"
+      - docker push "${ECR_EXTERNAL_URI}:latest"
+
+      # Write image tag to a file so the Deploy stage can reference it
+      - echo "${IMAGE_TAG}" > image_tag.txt
+      - echo "Build complete. Image tag: ${IMAGE_TAG}"
+
+artifacts:
+  files:
+    - image_tag.txt
+  discard-paths: yes

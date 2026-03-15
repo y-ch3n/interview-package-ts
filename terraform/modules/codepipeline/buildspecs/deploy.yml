@@ -1,0 +1,95 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.12
+    commands:
+      - pip install awscli --upgrade --quiet
+
+  pre_build:
+    commands:
+      - IMAGE_TAG=$(cat image_tag.txt 2>/dev/null || echo "latest")
+      - echo "Deploying image tag: ${IMAGE_TAG}"
+
+  build:
+    commands:
+      # ── Helper function: deploy a single EB environment ───────────────────
+      - |
+        deploy_env() {
+          local SERVICE_NAME=$1
+          local ENV_NAME=$2
+          local ECR_URI=$3
+          local APP_PORT=$4
+
+          echo "=== Deploying ${SERVICE_NAME} to ${ENV_NAME} ==="
+
+          # Create Dockerrun.aws.json (single-container Docker config for EB)
+          cat > "Dockerrun_${SERVICE_NAME}.json" <<EOF
+        {
+          "AWSEBDockerrunVersion": "1",
+          "Image": {
+            "Name": "${ECR_URI}:${IMAGE_TAG}",
+            "Update": "true"
+          },
+          "Ports": [
+            {
+              "ContainerPort": ${APP_PORT},
+              "HostPort": 80
+            }
+          ],
+          "Logging": "/var/log/app"
+        }
+        EOF
+
+          # Zip the Dockerrun config
+          ZIP_KEY="${SERVICE_NAME}-${IMAGE_TAG}.zip"
+          zip "${ZIP_KEY}" "Dockerrun_${SERVICE_NAME}.json"
+
+          # Upload to S3
+          aws s3 cp "${ZIP_KEY}" "s3://${ARTIFACT_BUCKET}/eb-versions/${ZIP_KEY}"
+
+          # Create EB application version
+          aws elasticbeanstalk create-application-version \
+            --application-name "${EB_APP_NAME}" \
+            --version-label "${SERVICE_NAME}-${IMAGE_TAG}" \
+            --source-bundle "S3Bucket=${ARTIFACT_BUCKET},S3Key=eb-versions/${ZIP_KEY}" \
+            --region "${AWS_DEFAULT_REGION}" || true
+
+          # Deploy to the environment
+          aws elasticbeanstalk update-environment \
+            --environment-name "${ENV_NAME}" \
+            --version-label "${SERVICE_NAME}-${IMAGE_TAG}" \
+            --region "${AWS_DEFAULT_REGION}"
+
+          echo "Triggered deploy for ${SERVICE_NAME}. Waiting for environment to be ready..."
+        }
+
+      # ── Deploy all three services ─────────────────────────────────────────
+      - deploy_env "backend"  "${EB_BACKEND_ENV}"  "${ECR_BACKEND_URI}"  3000
+      - deploy_env "frontend" "${EB_FRONTEND_ENV}" "${ECR_FRONTEND_URI}" 80
+      - deploy_env "external" "${EB_EXTERNAL_ENV}" "${ECR_EXTERNAL_URI}" 3000
+
+      # ── Wait for all environments to finish updating ──────────────────────
+      - |
+        wait_env() {
+          local ENV_NAME=$1
+          echo "Waiting for ${ENV_NAME} to reach Ready state..."
+          aws elasticbeanstalk wait environment-updated \
+            --environment-names "${ENV_NAME}" \
+            --region "${AWS_DEFAULT_REGION}"
+          HEALTH=$(aws elasticbeanstalk describe-environments \
+            --environment-names "${ENV_NAME}" \
+            --query 'Environments[0].Health' --output text \
+            --region "${AWS_DEFAULT_REGION}")
+          echo "${ENV_NAME} health: ${HEALTH}"
+          if [ "${HEALTH}" != "Green" ] && [ "${HEALTH}" != "Ok" ]; then
+            echo "WARNING: ${ENV_NAME} is not Green (${HEALTH}). Check the EB console."
+          fi
+        }
+
+      - wait_env "${EB_BACKEND_ENV}"
+      - wait_env "${EB_FRONTEND_ENV}"
+      - wait_env "${EB_EXTERNAL_ENV}"
+
+      - echo "Deployment complete."

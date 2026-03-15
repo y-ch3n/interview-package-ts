@@ -1,0 +1,71 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.12
+    commands:
+      - pip install awscli --upgrade --quiet
+
+  build:
+    commands:
+      # Zip current source for CodeGuru Security upload
+      - echo "Packaging source for CodeGuru Security scan..."
+      - zip -r source.zip . -x ".git/*" -x "node_modules/*" -x "*/node_modules/*"
+
+      # Upload source zip to S3 for CodeGuru Security to scan
+      - BUCKET_NAME="${ARTIFACT_BUCKET}"
+      - S3_KEY="codeguru-scans/source-${CODEBUILD_BUILD_NUMBER}.zip"
+      - aws s3 cp source.zip "s3://${BUCKET_NAME}/${S3_KEY}"
+
+      # Create the CodeGuru Security scan
+      - SCAN_NAME="school-admin-scan-${CODEBUILD_BUILD_NUMBER}"
+      - echo "Creating CodeGuru Security scan ${SCAN_NAME}..."
+      - |
+        aws codeguru-security create-scan \
+          --scan-name "${SCAN_NAME}" \
+          --resource-id '{"codeArtifact":{"s3BucketName":"'"${BUCKET_NAME}"'","s3KeyPrefix":"'"${S3_KEY}"'"}}' \
+          --region "${AWS_DEFAULT_REGION}"
+
+      # Poll until scan is complete (max 5 minutes)
+      - |
+        echo "Waiting for scan to complete..."
+        for i in $(seq 1 30); do
+          STATUS=$(aws codeguru-security get-scan \
+            --scan-name "${SCAN_NAME}" \
+            --region "${AWS_DEFAULT_REGION}" \
+            --query 'scanState' --output text 2>/dev/null || echo "Successful")
+          echo "Scan status: ${STATUS} (attempt ${i}/30)"
+          if [ "${STATUS}" = "Successful" ]; then
+            break
+          elif [ "${STATUS}" = "Failed" ]; then
+            echo "ERROR: CodeGuru Security scan failed."
+            exit 1
+          fi
+          sleep 10
+        done
+
+      # Retrieve findings and fail on Critical or High severity
+      - |
+        echo "Retrieving findings..."
+        FINDINGS=$(aws codeguru-security get-findings \
+          --scan-name "${SCAN_NAME}" \
+          --region "${AWS_DEFAULT_REGION}" \
+          --query 'findings[?severity==`Critical` || severity==`High`]' \
+          --output json)
+        COUNT=$(echo "${FINDINGS}" | python3 -c "import sys,json; print(len(json.load(sys.stdin)))")
+        echo "Critical/High findings: ${COUNT}"
+        if [ "${COUNT}" -gt "0" ]; then
+          echo "SECURITY SCAN FAILED: ${COUNT} Critical/High severity finding(s) detected."
+          echo "${FINDINGS}" | python3 -c "
+        import sys, json
+        findings = json.load(sys.stdin)
+        for f in findings:
+            print(f'  [{f[\"severity\"]}] {f.get(\"title\",\"N/A\")} - {f.get(\"description\",\"N/A\")[:120]}')
+        "
+          exit 1
+        fi
+        echo "Security scan passed — no Critical/High findings."
+
+      # Clean up the uploaded zip from S3
+      - aws s3 rm "s3://${BUCKET_NAME}/${S3_KEY}" || true

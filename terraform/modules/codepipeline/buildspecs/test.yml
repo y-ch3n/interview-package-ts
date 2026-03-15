@@ -1,0 +1,30 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 20
+
+  pre_build:
+    commands:
+      - echo "Installing backend dependencies..."
+      - cd typescript && npm ci && cd ..
+
+      - echo "Installing frontend dependencies..."
+      - cd frontend && npm ci && cd ..
+
+  build:
+    commands:
+      # ── Backend: Jest tests ────────────────────────────────────────────────
+      - echo "Running backend tests..."
+      - cd typescript && npm test -- --ci --forceExit --coverage && cd ..
+
+      # ── Frontend: ESLint ───────────────────────────────────────────────────
+      - echo "Running frontend lint..."
+      - cd frontend && npm run lint && cd ..
+
+      # ── Backend: TypeScript compile check ─────────────────────────────────
+      - echo "Running backend TypeScript compile check..."
+      - cd typescript && npm run build:ts && cd ..
+
+      - echo "All tests and lint checks passed."
