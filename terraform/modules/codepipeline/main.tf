@@ -142,25 +142,6 @@ resource "aws_codestarconnections_connection" "github" {
   }
 }
 
-# ── Security Group for CodeBuild (VPC access) ──────────────────────────────────
-
-resource "aws_security_group" "codebuild" {
-  name        = "school-admin-${var.environment}-codebuild-sg"
-  description = "CodeBuild projects — outbound internet via NAT"
-  vpc_id      = var.vpc_id
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags = {
-    Name = "school-admin-${var.environment}-codebuild-sg"
-  }
-}
-
 # ── IAM: CodeBuild Role ────────────────────────────────────────────────────────
 
 data "aws_iam_policy_document" "codebuild_assume" {
@@ -393,12 +374,6 @@ resource "aws_codebuild_project" "security_scan" {
     buildspec = file("${path.module}/buildspecs/security_scan.yml")
   }
 
-  vpc_config {
-    vpc_id             = var.vpc_id
-    subnets            = var.private_subnet_ids
-    security_group_ids = [aws_security_group.codebuild.id]
-  }
-
   logs_config {
     cloudwatch_logs {
       group_name  = "/codebuild/school-admin-${var.environment}-security-scan"
@@ -450,12 +425,6 @@ resource "aws_codebuild_project" "build" {
     buildspec = file("${path.module}/buildspecs/build.yml")
   }
 
-  vpc_config {
-    vpc_id             = var.vpc_id
-    subnets            = var.private_subnet_ids
-    security_group_ids = [aws_security_group.codebuild.id]
-  }
-
   logs_config {
     cloudwatch_logs {
       group_name  = "/codebuild/school-admin-${var.environment}-build"
@@ -484,12 +453,6 @@ resource "aws_codebuild_project" "test" {
   source {
     type      = "CODEPIPELINE"
     buildspec = file("${path.module}/buildspecs/test.yml")
-  }
-
-  vpc_config {
-    vpc_id             = var.vpc_id
-    subnets            = var.private_subnet_ids
-    security_group_ids = [aws_security_group.codebuild.id]
   }
 
   logs_config {
@@ -532,11 +495,6 @@ resource "aws_codebuild_project" "deploy" {
     }
 
     environment_variable {
-      name  = "EB_FRONTEND_ENV"
-      value = var.eb_frontend_env_name
-    }
-
-    environment_variable {
       name  = "EB_EXTERNAL_ENV"
       value = var.eb_external_env_name
     }
@@ -560,12 +518,6 @@ resource "aws_codebuild_project" "deploy" {
   source {
     type      = "CODEPIPELINE"
     buildspec = file("${path.module}/buildspecs/deploy.yml")
-  }
-
-  vpc_config {
-    vpc_id             = var.vpc_id
-    subnets            = var.private_subnet_ids
-    security_group_ids = [aws_security_group.codebuild.id]
   }
 
   logs_config {

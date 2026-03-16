@@ -7,7 +7,7 @@ variable "aws_region" {
 variable "environment" {
   description = "Environment name (dev, staging, prod)"
   type        = string
-  default     = "prod"
+  default     = "staging"
 
   validation {
     condition     = contains(["dev", "staging", "prod"], var.environment)
@@ -28,19 +28,19 @@ variable "vpc_cidr" {
 variable "eb_instance_type" {
   description = "EC2 instance type for Elastic Beanstalk environments"
   type        = string
-  default     = "t3.medium"
+  default     = "t3.small"
 }
 
 variable "eb_min_instances" {
   description = "Minimum number of EC2 instances per EB environment"
   type        = number
-  default     = 2
+  default     = 1
 }
 
 variable "eb_max_instances" {
   description = "Maximum number of EC2 instances per EB environment"
   type        = number
-  default     = 4
+  default     = 1
 }
 
 # ── Aurora ─────────────────────────────────────────────────────────────────────
@@ -48,7 +48,7 @@ variable "eb_max_instances" {
 variable "aurora_instance_class" {
   description = "Aurora instance class for writer and reader instances"
   type        = string
-  default     = "db.r7g.large"
+  default     = "db.t4g.small"
 }
 
 variable "db_name" {
@@ -87,4 +87,10 @@ variable "github_branch" {
   description = "GitHub branch to track for the pipeline"
   type        = string
   default     = "main"
+}
+
+variable "github_access_token" {
+  description = "GitHub personal access token for Amplify to pull the repository"
+  type        = string
+  sensitive   = true
 }

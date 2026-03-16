@@ -9,7 +9,7 @@ module "vpc" {
 # circular dependency: aurora needs eb_sg_id, and eb module needs aurora outputs.
 resource "aws_security_group" "eb_instances" {
   name        = "school-admin-${var.environment}-eb-instances-sg"
-  description = "Elastic Beanstalk EC2 instances — allows HTTP/HTTPS inbound from ALB"
+  description = "Elastic Beanstalk EC2 instances - allows HTTP/HTTPS inbound from ALB"
   vpc_id      = module.vpc.vpc_id
 
   ingress {
@@ -62,7 +62,6 @@ module "elastic_beanstalk" {
   environment          = var.environment
   vpc_id               = module.vpc.vpc_id
   public_subnet_ids    = module.vpc.public_subnet_ids
-  private_subnet_ids   = module.vpc.private_subnet_ids
   eb_security_group_id = aws_security_group.eb_instances.id
   instance_type        = var.eb_instance_type
   min_instances        = var.eb_min_instances
@@ -76,14 +75,21 @@ module "elastic_beanstalk" {
 module "codepipeline" {
   source = "./modules/codepipeline"
 
-  environment          = var.environment
-  vpc_id               = module.vpc.vpc_id
-  private_subnet_ids   = module.vpc.private_subnet_ids
-  github_repo          = var.github_repo
-  github_branch        = var.github_branch
-  eb_application_name  = module.elastic_beanstalk.application_name
-  eb_backend_env_name  = module.elastic_beanstalk.backend_env_name
-  eb_frontend_env_name = module.elastic_beanstalk.frontend_env_name
+  environment         = var.environment
+  github_repo         = var.github_repo
+  github_branch       = var.github_branch
+  eb_application_name = module.elastic_beanstalk.application_name
+  eb_backend_env_name = module.elastic_beanstalk.backend_env_name
   eb_external_env_name = module.elastic_beanstalk.external_env_name
-  aws_region           = var.aws_region
+  aws_region          = var.aws_region
+}
+
+module "amplify" {
+  source = "./modules/amplify"
+
+  environment         = var.environment
+  github_repo         = var.github_repo
+  github_branch       = var.github_branch
+  github_access_token = var.github_access_token
+  backend_url         = module.elastic_beanstalk.backend_env_url
 }

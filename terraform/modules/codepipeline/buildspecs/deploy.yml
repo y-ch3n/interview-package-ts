@@ -65,9 +65,8 @@ phases:
           echo "Triggered deploy for ${SERVICE_NAME}. Waiting for environment to be ready..."
         }
 
-      # ── Deploy all three services ─────────────────────────────────────────
+      # ── Deploy backend and external (frontend is hosted on Amplify) ──────
       - deploy_env "backend"  "${EB_BACKEND_ENV}"  "${ECR_BACKEND_URI}"  3000
-      - deploy_env "frontend" "${EB_FRONTEND_ENV}" "${ECR_FRONTEND_URI}" 80
       - deploy_env "external" "${EB_EXTERNAL_ENV}" "${ECR_EXTERNAL_URI}" 3000
 
       # ── Wait for all environments to finish updating ──────────────────────
@@ -89,7 +88,6 @@ phases:
         }
 
       - wait_env "${EB_BACKEND_ENV}"
-      - wait_env "${EB_FRONTEND_ENV}"
       - wait_env "${EB_EXTERNAL_ENV}"
 
       - echo "Deployment complete."

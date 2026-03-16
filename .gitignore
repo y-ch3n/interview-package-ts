@@ -1,3 +1,10 @@
 typescript/node_modules
 typescript/.env
 frontend/.env
+
+# Terraform
+terraform/terraform.tfvars
+terraform/.terraform/
+terraform/.terraform.lock.hcl
+terraform/*.tfstate
+terraform/*.tfstate.backup

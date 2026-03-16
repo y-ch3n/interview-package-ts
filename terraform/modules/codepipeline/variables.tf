@@ -8,16 +8,6 @@ variable "aws_region" {
   type        = string
 }
 
-variable "vpc_id" {
-  description = "VPC ID"
-  type        = string
-}
-
-variable "private_subnet_ids" {
-  description = "Private subnet IDs for CodeBuild VPC config"
-  type        = list(string)
-}
-
 variable "github_repo" {
   description = "GitHub repository in owner/repo format"
   type        = string
@@ -36,11 +26,6 @@ variable "eb_application_name" {
 
 variable "eb_backend_env_name" {
   description = "Elastic Beanstalk backend environment name"
-  type        = string
-}
-
-variable "eb_frontend_env_name" {
-  description = "Elastic Beanstalk frontend environment name"
   type        = string
 }
 

@@ -21,7 +21,6 @@ variable "eb_security_group_id" {
 variable "db_name" {
   description = "Database name"
   type        = string
-  default     = "school_admin"
 }
 
 variable "db_master_username" {
@@ -33,7 +32,6 @@ variable "db_master_username" {
 variable "instance_class" {
   description = "Aurora instance class"
   type        = string
-  default     = "db.r7g.large"
 }
 
 variable "deletion_protection" {

@@ -8,19 +8,9 @@ output "aurora_cluster_endpoint" {
   value       = module.aurora.cluster_endpoint
 }
 
-output "aurora_reader_endpoint" {
-  description = "Aurora cluster reader endpoint"
-  value       = module.aurora.reader_endpoint
-}
-
 output "eb_backend_env_url" {
   description = "Elastic Beanstalk backend environment URL"
   value       = module.elastic_beanstalk.backend_env_url
-}
-
-output "eb_frontend_env_url" {
-  description = "Elastic Beanstalk frontend environment URL"
-  value       = module.elastic_beanstalk.frontend_env_url
 }
 
 output "eb_external_env_url" {
@@ -57,4 +47,9 @@ output "db_secret_arn" {
   description = "ARN of the Secrets Manager secret holding Aurora credentials"
   value       = module.aurora.db_secret_arn
   sensitive   = true
+}
+
+output "amplify_frontend_url" {
+  description = "Amplify hosted frontend URL"
+  value       = module.amplify.frontend_url
 }

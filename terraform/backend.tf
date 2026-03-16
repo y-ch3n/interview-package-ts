@@ -22,12 +22,12 @@
 #     --key-schema AttributeName=LockID,KeyType=HASH \
 #     --billing-mode PAY_PER_REQUEST \
 #     --region ap-southeast-1
-#
+#   http://school-admin-tfstate-673841612978.s3.amazonaws.com/
 # Then replace <ACCOUNT_ID> below with your AWS account ID and run `terraform init`.
 
 terraform {
   backend "s3" {
-    bucket         = "school-admin-tfstate-<ACCOUNT_ID>"
+    bucket         = "school-admin-tfstate-673841612978"
     key            = "school-admin/terraform.tfstate"
     region         = "ap-southeast-1"
     dynamodb_table = "school-admin-tfstate-lock"

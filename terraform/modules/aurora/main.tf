@@ -2,7 +2,7 @@
 
 resource "aws_security_group" "aurora" {
   name        = "school-admin-${var.environment}-aurora-sg"
-  description = "Aurora MySQL cluster — allows MySQL inbound from EB instances only"
+  description = "Aurora MySQL cluster - allows MySQL inbound from EB instances only"
   vpc_id      = var.vpc_id
 
   ingress {
@@ -69,7 +69,7 @@ resource "aws_rds_cluster_parameter_group" "this" {
 resource "aws_rds_cluster" "this" {
   cluster_identifier     = "school-admin-${var.environment}"
   engine                 = "aurora-mysql"
-  engine_version         = "8.0.mysql_aurora.3.07.1"
+  engine_version         = "8.0.mysql_aurora.3.10.3"
   database_name          = var.db_name
   master_username        = var.db_master_username
 
@@ -117,21 +117,3 @@ resource "aws_rds_cluster_instance" "writer" {
   }
 }
 
-resource "aws_rds_cluster_instance" "reader" {
-  identifier         = "school-admin-${var.environment}-reader"
-  cluster_identifier = aws_rds_cluster.this.id
-  instance_class     = var.instance_class
-  engine             = aws_rds_cluster.this.engine
-  engine_version     = aws_rds_cluster.this.engine_version
-
-  db_subnet_group_name    = aws_db_subnet_group.this.name
-  publicly_accessible     = false
-  promotion_tier          = 1
-
-  performance_insights_enabled = true
-
-  tags = {
-    Name = "school-admin-${var.environment}-reader"
-    Role = "reader"
-  }
-}

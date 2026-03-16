@@ -1,7 +1,11 @@
+# Resolve the latest available Docker on Amazon Linux 2023 platform automatically
+data "aws_elastic_beanstalk_solution_stack" "docker" {
+  most_recent = true
+  name_regex  = "64bit Amazon Linux 2023.*running Docker|Docker.*64bit Amazon Linux 2023"
+}
+
 locals {
-  # Docker platform running on Amazon Linux 2023
-  # Check latest: aws elasticbeanstalk list-available-solution-stacks | grep "Docker"
-  eb_platform = "64bit Amazon Linux 2023 v4.5.1 running Docker"
+  eb_platform = data.aws_elastic_beanstalk_solution_stack.docker.name
 
   # Common EB environment settings shared across all three environments
   common_settings = [
@@ -14,7 +18,7 @@ locals {
     {
       namespace = "aws:ec2:vpc"
       name      = "Subnets"
-      value     = join(",", var.private_subnet_ids)
+      value     = join(",", var.public_subnet_ids)
     },
     {
       namespace = "aws:ec2:vpc"
@@ -29,7 +33,7 @@ locals {
     {
       namespace = "aws:ec2:vpc"
       name      = "AssociatePublicIpAddress"
-      value     = "false"
+      value     = "true"
     },
     # ── Instance ─────────────────────────────────────────────────────────────
     {
@@ -69,6 +73,11 @@ locals {
       name      = "EnvironmentType"
       value     = "LoadBalanced"
     },
+    {
+      namespace = "aws:elasticbeanstalk:environment"
+      name      = "ServiceRole"
+      value     = aws_iam_role.eb_service.arn
+    },
     # ── Health Reporting ──────────────────────────────────────────────────────
     {
       namespace = "aws:elasticbeanstalk:healthreporting:system"
@@ -87,6 +96,43 @@ locals {
       value     = "30"
     },
   ]
+}
+
+# ── IAM Role for EB service (used by EB control plane + appversion_lifecycle) ──
+
+data "aws_iam_policy_document" "eb_service_assume_role" {
+  statement {
+    actions = ["sts:AssumeRole"]
+    principals {
+      type        = "Service"
+      identifiers = ["elasticbeanstalk.amazonaws.com"]
+    }
+    condition {
+      test     = "StringEquals"
+      variable = "sts:ExternalId"
+      values   = ["elasticbeanstalk"]
+    }
+  }
+}
+
+resource "aws_iam_role" "eb_service" {
+  name               = "school-admin-${var.environment}-eb-service-role"
+  assume_role_policy = data.aws_iam_policy_document.eb_service_assume_role.json
+}
+
+resource "aws_iam_role_policy_attachment" "eb_service_core" {
+  role       = aws_iam_role.eb_service.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSElasticBeanstalkService"
+}
+
+resource "aws_iam_role_policy_attachment" "eb_service_enhanced_health" {
+  role       = aws_iam_role.eb_service.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSElasticBeanstalkEnhancedHealth"
+}
+
+resource "aws_iam_role_policy_attachment" "eb_service_managed_updates" {
+  role       = aws_iam_role.eb_service.name
+  policy_arn = "arn:aws:iam::aws:policy/AWSElasticBeanstalkManagedUpdatesCustomerRolePolicy"
 }
 
 # ── IAM Role for EB EC2 instances ─────────────────────────────────────────────
@@ -160,10 +206,10 @@ resource "aws_iam_instance_profile" "eb" {
 
 resource "aws_elastic_beanstalk_application" "this" {
   name        = "school-admin-${var.environment}"
-  description = "School Administration System — ${var.environment}"
+  description = "School Administration System - ${var.environment}"
 
   appversion_lifecycle {
-    service_role          = aws_iam_role.eb_instance.arn
+    service_role          = aws_iam_role.eb_service.arn
     max_count             = 20
     delete_source_from_s3 = true
   }
@@ -226,34 +272,6 @@ resource "aws_elastic_beanstalk_environment" "backend" {
 
   tags = {
     Service = "backend"
-  }
-}
-
-# ── Frontend Environment ───────────────────────────────────────────────────────
-
-resource "aws_elastic_beanstalk_environment" "frontend" {
-  name                = "school-admin-${var.environment}-frontend"
-  application         = aws_elastic_beanstalk_application.this.name
-  solution_stack_name = local.eb_platform
-  tier                = "WebServer"
-
-  dynamic "setting" {
-    for_each = local.common_settings
-    content {
-      namespace = setting.value.namespace
-      name      = setting.value.name
-      value     = setting.value.value
-    }
-  }
-
-  setting {
-    namespace = "aws:elasticbeanstalk:application:environment"
-    name      = "NODE_ENV"
-    value     = var.environment
-  }
-
-  tags = {
-    Service = "frontend"
   }
 }
 

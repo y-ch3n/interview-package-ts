@@ -3,11 +3,6 @@ output "cluster_endpoint" {
   value       = aws_rds_cluster.this.endpoint
 }
 
-output "reader_endpoint" {
-  description = "Aurora cluster reader endpoint"
-  value       = aws_rds_cluster.this.reader_endpoint
-}
-
 output "cluster_port" {
   description = "Aurora cluster port"
   value       = aws_rds_cluster.this.port
